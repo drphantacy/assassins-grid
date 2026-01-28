@@ -1,0 +1,13 @@
+// Test input for join_game transition
+// Player 2 joins an existing game with their board placement
+
+[join_game]
+game_id: 1field;
+board: BoardState {
+    assassin_pos: 22u8,    // Row 4, col 2
+    guard1_pos: 3u8,       // Row 0, col 3
+    guard2_pos: 21u8,      // Row 4, col 1
+    decoy1_pos: 10u8,      // Row 2, col 0
+    decoy2_pos: 14u8,      // Row 2, col 4
+    salt: 987654321field,  // Random salt for commitment
+};

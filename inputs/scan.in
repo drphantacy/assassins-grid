@@ -1,0 +1,22 @@
+// Test input for scan transition
+// Scanner queries unit count in a row or column
+
+[scan]
+game_board: GameBoard {
+    owner: aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc,
+    game_id: 1field,
+    board: BoardState {
+        assassin_pos: 12u8,
+        guard1_pos: 0u8,
+        guard2_pos: 24u8,
+        decoy1_pos: 6u8,
+        decoy2_pos: 18u8,
+        salt: 123456789field,
+    },
+    opponent: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9dx,
+    relocates_remaining: 2u8,
+    is_player_one: true,
+};
+is_row: true;  // Scanning a row (not column)
+index: 4u8;    // Row 4 (bottom row)
+// Expected: Opponent has units at positions 21 and 22 in row 4, so count = 2

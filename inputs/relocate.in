@@ -1,0 +1,22 @@
+// Test input for relocate transition
+// Player moves one of their units to a new empty square
+
+[relocate]
+game_board: GameBoard {
+    owner: aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc,
+    game_id: 1field,
+    board: BoardState {
+        assassin_pos: 12u8,    // Center
+        guard1_pos: 0u8,       // Top-left
+        guard2_pos: 24u8,      // Bottom-right
+        decoy1_pos: 6u8,       // Row 1, col 1
+        decoy2_pos: 18u8,      // Row 3, col 3
+        salt: 123456789field,
+    },
+    opponent: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9dx,
+    relocates_remaining: 2u8,
+    is_player_one: true,
+};
+unit_index: 0u8;      // Moving the assassin (index 0)
+new_position: 7u8;    // Move to row 1, col 2 (currently empty)
+// After relocate: assassin will be at position 7 instead of 12
