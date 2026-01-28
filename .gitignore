@@ -1,0 +1,40 @@
+# Leo build artifacts
+build/
+outputs/
+*.avm
+*.prover
+*.verifier
+
+# Environment and secrets
+.env
+.env.local
+*.key
+*private*key*
+
+# Node modules (frontend)
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test scripts (optional - remove if you want to commit them)
+# test_*.sh
+
+# Logs
+*.log
+npm-debug.log*
+
+# Claude config
+.claude/
+
+# Frontend
+frontend/
