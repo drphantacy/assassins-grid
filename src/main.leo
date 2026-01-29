@@ -254,6 +254,13 @@ program assassins_grid.aleo {
     // TRANSITIONS
     // ============================================
 
+    // Constructor - required for deployment
+    @custom
+    async constructor() {
+        // Initialize a placeholder to satisfy non-empty requirement
+        Mapping::set(scan_counts, 0field, 0u32);
+    }
+
     // Phase 1: Game Creation
     // Player 1 creates a new game with their board placement
     async transition create_game(
