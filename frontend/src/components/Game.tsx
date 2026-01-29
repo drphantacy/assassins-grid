@@ -371,11 +371,12 @@ const Game: React.FC = () => {
               <div
                 key={i}
                 className={`menu-cell ${MENU_ACCENT_CELLS.includes(i) ? 'accent' : ''}`}
-                style={{ animationDelay: `${i * MENU_ANIMATION_DELAY_INCREMENT}s` }}
+                style={{ '--delay': `${i * MENU_ANIMATION_DELAY_INCREMENT}s` } as React.CSSProperties}
               />
             ))}
           </div>
           <div className="menu-board-glow" />
+          <div className="menu-board-shadow" />
         </div>
 
         {/* Header */}
@@ -636,7 +637,6 @@ const Game: React.FC = () => {
           <GameControls
             status={gameState.status}
             isPlayerTurn={gameState.isPlayerTurn}
-            onPlayAgain={handlePlayAgain}
           />
         </div>
         <div className="header-right">
@@ -734,6 +734,24 @@ const Game: React.FC = () => {
 
       {renderBadge()}
       {renderSoundToggle()}
+
+      {(gameState.status === GameStatus.Won || gameState.status === GameStatus.Lost) && (
+        <div className="game-over-overlay">
+          <div className={`game-result ${gameState.status === GameStatus.Won ? 'win' : 'lose'}`}>
+            <div className="result-title">
+              {gameState.status === GameStatus.Won ? "Victory!" : "Defeat"}
+            </div>
+            <div className="result-message">
+              {gameState.status === GameStatus.Won
+                ? "You eliminated the enemy Assassin"
+                : "Your Assassin was eliminated"}
+            </div>
+            <button className="play-again-btn" onClick={handlePlayAgain}>
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
