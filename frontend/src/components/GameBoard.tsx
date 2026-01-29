@@ -21,6 +21,7 @@ interface GameBoardProps {
   highlightedCells?: number[];
   disabled?: boolean;
   allowRelocate?: boolean;
+  popoverCell?: number | null;
 }
 
 const UNIT_NAMES = ['Assassin', 'Guard', 'Guard', 'Decoy', 'Decoy'];
@@ -37,12 +38,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
   highlightedCells = [],
   disabled = false,
   allowRelocate = false,
+  popoverCell,
 }) => {
   const [dragOverCell, setDragOverCell] = React.useState<number | null>(null);
   const dragImageRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    // Create drag image element
     const dragImage = document.createElement('div');
     dragImage.className = 'drag-image';
     dragImage.style.cssText = `
@@ -99,13 +100,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
       if (unit !== UnitType.Empty) {
         cellContent = getUnitEmoji(unit);
         if (isStruck) {
-          // Show strike result color
           cellClass += ' struck';
           if (unit === UnitType.Assassin) cellClass += ' result-hitassassin';
           else if (unit === UnitType.Guard) cellClass += ' result-hitguard';
           else if (unit === UnitType.Decoy) cellClass += ' result-hitdecoy';
         } else {
-          // Active unit - highlight with ivory
           cellClass += ' unit-active';
         }
         if (allowRelocate && !isStruck) {
@@ -113,13 +112,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
           cellClass += ' draggable';
         }
       } else if (isStruck) {
-        // Empty cell that was struck (miss)
         cellClass += ' result-miss';
       }
     } else if (revealed) {
       if (revealed.strikes.has(pos)) {
         const result = revealed.strikes.get(pos)!;
         cellClass += ` result-${StrikeResult[result].toLowerCase()} struck`;
+        if (result === StrikeResult.HitAssassin) {
+          cellContent = '🗡️';
+        } else if (result === StrikeResult.HitGuard) {
+          cellContent = '🛡️';
+        } else if (result === StrikeResult.HitDecoy) {
+          cellContent = '👤';
+        }
       }
     }
 
@@ -127,6 +132,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (isSelected) cellClass += ' selected';
     if (disabled && !onCellDrop) cellClass += ' disabled';
     if (dragOverCell === pos) cellClass += ' drag-over';
+    if (popoverCell === pos) cellClass += ' popover-active';
 
     return (
       <div
@@ -138,8 +144,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
           if (isDraggable) {
             const unitIndex = getUnitIndexAt(pos);
             e.dataTransfer.setData('text/plain', `board:${unitIndex}:${pos}`);
-
-            // Set custom drag image
             if (dragImageRef.current && unitIndex !== -1) {
               dragImageRef.current.innerHTML = `<span>${UNIT_EMOJIS[unitIndex]}</span><span>${UNIT_NAMES[unitIndex]}</span>`;
               e.dataTransfer.setDragImage(dragImageRef.current, 40, 20);
@@ -174,10 +178,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const getKilledUnits = (): boolean[] => {
-    const killed = [false, false, false, false, false]; // assassin, guard1, guard2, decoy1, decoy2
+    const killed = [false, false, false, false, false];
 
     if (isOwn && board && revealed) {
-      // For player's board, check which of our units have been struck
       const positions = [board.assassinPos, board.guard1Pos, board.guard2Pos, board.decoy1Pos, board.decoy2Pos];
       positions.forEach((pos, idx) => {
         if (pos !== -1 && revealed.strikes.has(pos)) {
@@ -185,7 +188,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
         }
       });
     } else if (!isOwn && revealed) {
-      // For opponent's board, count kills by result type
       let guardsKilled = 0;
       let decoysKilled = 0;
 
@@ -230,6 +232,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         ))}
       </div>
+
     </div>
   );
 };
