@@ -49,7 +49,7 @@
 .menu-title span {
   font-size: 48px;
   font-weight: 400;
-  color: #000;
+  color: #121212;
 }
 
 .menu-subtitle {
@@ -59,7 +59,7 @@
 
 .menu-bottom {
   flex: 1;
-  background: #000;
+  background: #121212;
   border-radius: 40px 40px 0 0;
   padding: 60px 24px 120px;
   display: flex;
