@@ -353,6 +353,7 @@ const Game: React.FC = () => {
 
   const handlePlayAgain = () => {
     resetGame();
+    startGame('medium');
     setChainEvents([]);
     setCurrentGameId(null);
     setPopoverCell(null);
