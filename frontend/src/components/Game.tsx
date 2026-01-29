@@ -4,6 +4,14 @@ import { GameStatus, BoardState, ChainEvent } from '../types/game';
 import { useGame } from '../hooks/useGame';
 import { useContract } from '../hooks/useContract';
 import { AIDifficulty } from '../ai/opponent';
+import {
+  AUDIO_VOLUME,
+  TRANSITION_DELAY_MS,
+  AI_OPPONENT_ADDRESS,
+  MENU_ACCENT_CELLS,
+  MENU_ANIMATION_DELAY_INCREMENT,
+  INITIAL_EMPTY_BOARD,
+} from '../constants/game';
 import GameBoard from './GameBoard';
 import GameControls from './GameControls';
 import GameLog from './GameLog';
@@ -54,7 +62,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     audioRef.current = new Audio('/audio/background-music.mp3');
     audioRef.current.loop = true;
-    audioRef.current.volume = 0.3;
+    audioRef.current.volume = AUDIO_VOLUME;
 
     return () => {
       if (audioRef.current) {
@@ -83,16 +91,10 @@ const Game: React.FC = () => {
     setIsTransitioning(true);
     setTimeout(() => {
       startGame(difficulty);
-      setSetupBoard({
-        assassinPos: -1,
-        guard1Pos: -1,
-        guard2Pos: -1,
-        decoy1Pos: -1,
-        decoy2Pos: -1,
-      });
+      setSetupBoard({ ...INITIAL_EMPTY_BOARD });
       setPlacingUnit(0);
       setIsTransitioning(false);
-    }, 600);
+    }, TRANSITION_DELAY_MS);
   };
 
   const [txError, setTxError] = useState<string | null>(null);
@@ -124,7 +126,6 @@ const Game: React.FC = () => {
     }
 
     try {
-      const AI_ADDRESS = 'aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc';
       const result = await createGame(
         {
           assassinPos: setupBoard.assassinPos,
@@ -133,7 +134,7 @@ const Game: React.FC = () => {
           decoy1Pos: setupBoard.decoy1Pos,
           decoy2Pos: setupBoard.decoy2Pos,
         },
-        AI_ADDRESS
+        AI_OPPONENT_ADDRESS
       );
 
       console.log('Game created:', result);
@@ -356,13 +357,7 @@ const Game: React.FC = () => {
     setCurrentGameId(null);
     setPopoverCell(null);
     setShowLog(false);
-    setSetupBoard({
-      assassinPos: -1,
-      guard1Pos: -1,
-      guard2Pos: -1,
-      decoy1Pos: -1,
-      decoy2Pos: -1,
-    });
+    setSetupBoard({ ...INITIAL_EMPTY_BOARD });
     setPlacingUnit(0);
   };
 
@@ -375,8 +370,8 @@ const Game: React.FC = () => {
             {Array.from({ length: 25 }, (_, i) => (
               <div
                 key={i}
-                className={`menu-cell ${[0, 6, 12, 18, 24].includes(i) ? 'accent' : ''}`}
-                style={{ animationDelay: `${i * 0.05}s` }}
+                className={`menu-cell ${MENU_ACCENT_CELLS.includes(i) ? 'accent' : ''}`}
+                style={{ animationDelay: `${i * MENU_ANIMATION_DELAY_INCREMENT}s` }}
               />
             ))}
           </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActionType, StrikeResult, ScanResult, ActionLogEntry, ChainEvent } from '../types/game';
 import { getStrikeResultDescription } from '../utils/gameLogic';
+import { PROGRAM_EXPLORER_URL } from '../constants/game';
 import './GameLog.css';
 
 interface GameLogProps {
@@ -10,11 +11,9 @@ interface GameLogProps {
   gameId?: string | null;
 }
 
-const PROGRAM_URL = 'https://testnet.explorer.provable.com/program/assassins_grid.aleo';
-
 const ProgramLink: React.FC = () => (
   <a
-    href={PROGRAM_URL}
+    href={PROGRAM_EXPLORER_URL}
     target="_blank"
     rel="noopener noreferrer"
     className="program-link"

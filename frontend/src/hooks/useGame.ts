@@ -15,6 +15,7 @@ import {
   relocateUnit,
 } from '../utils/gameLogic';
 import { AIOpponent, AIDifficulty } from '../ai/opponent';
+import { getThinkingTime } from '../constants/game';
 
 interface UseGameReturn {
   gameState: GameState | null;
@@ -185,7 +186,7 @@ export function useGame(): UseGameReturn {
     newState.turnNumber++;
     newState.aiThinking = true;
 
-    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
+    const thinkingTime = getThinkingTime();
 
     setTimeout(() => {
       setGameState(prev => {
@@ -228,7 +229,7 @@ export function useGame(): UseGameReturn {
       aiThinking: true,
     };
 
-    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
+    const thinkingTime = getThinkingTime();
 
     setTimeout(() => {
       setGameState(prev => {
@@ -270,7 +271,7 @@ export function useGame(): UseGameReturn {
       aiThinking: true,
     };
 
-    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
+    const thinkingTime = getThinkingTime();
 
     setTimeout(() => {
       setGameState(prev => {

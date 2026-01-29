@@ -8,6 +8,7 @@ import {
   rowColToPos,
 } from '../types/game';
 import { getUnitAt } from '../utils/gameLogic';
+import { UNIT_NAMES, UNIT_EMOJIS } from '../constants/game';
 import './GameBoard.css';
 
 interface GameBoardProps {
@@ -23,9 +24,6 @@ interface GameBoardProps {
   allowRelocate?: boolean;
   popoverCell?: number | null;
 }
-
-const UNIT_NAMES = ['Assassin', 'Guard', 'Guard', 'Decoy', 'Decoy'];
-const UNIT_EMOJIS = ['🗡️', '🛡️', '🛡️', '👤', '👤'];
 
 const GameBoard: React.FC<GameBoardProps> = ({
   board,

@@ -15,6 +15,7 @@ import {
   generateSalt,
   PROGRAM_ID,
 } from '../services/contract';
+import { EXPLORER_API_BASE, MICROCREDITS_PER_CREDIT } from '../constants/game';
 
 export function useContract() {
   const { publicKey, requestTransaction, requestRecords } = useWallet();
@@ -32,14 +33,13 @@ export function useContract() {
   const fetchBalance = async (address: string): Promise<number> => {
     try {
       const response = await fetch(
-        `https://api.explorer.provable.com/v1/testnet/program/credits.aleo/mapping/account/${address}`
+        `${EXPLORER_API_BASE}/program/credits.aleo/mapping/account/${address}`
       );
       const data = await response.json();
       if (data && typeof data === 'string') {
-        // Parse "123456u64" format
         const match = data.match(/(\d+)u64/);
         if (match) {
-          return parseInt(match[1], 10) / 1_000_000; // Convert microcredits to credits
+          return parseInt(match[1], 10) / MICROCREDITS_PER_CREDIT;
         }
       }
       return 0;
