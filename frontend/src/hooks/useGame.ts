@@ -6,6 +6,7 @@ import {
   StrikeResult,
   ActionType,
   RevealedInfo,
+  ActionLogEntry,
   ELIMINATED,
 } from '../types/game';
 import {
@@ -59,6 +60,10 @@ export function useGame(): UseGameReturn {
       turnNumber: 0,
       lastAction: null,
       lastResult: null,
+      lastActionByPlayer: false,
+      actionLog: [],
+      aiThinking: false,
+      chainEvents: [],
     });
   }, []);
 
@@ -82,6 +87,13 @@ export function useGame(): UseGameReturn {
     if (action.type === ActionType.Strike) {
       const { result, newBoard } = resolveStrike(state.playerBoard, action.target);
 
+      const logEntry: ActionLogEntry = {
+        action,
+        result,
+        byPlayer: false,
+        turnNumber: state.turnNumber,
+      };
+
       newState.playerBoard = newBoard;
       newState.opponentRevealed = {
         ...state.opponentRevealed,
@@ -89,6 +101,8 @@ export function useGame(): UseGameReturn {
       };
       newState.lastAction = action;
       newState.lastResult = result;
+      newState.lastActionByPlayer = false;
+      newState.actionLog = [...state.actionLog, logEntry];
 
       if (result === StrikeResult.HitAssassin) {
         newState.status = GameStatus.Lost;
@@ -100,6 +114,14 @@ export function useGame(): UseGameReturn {
       }
     } else if (action.type === ActionType.Scan) {
       const count = countUnitsInLine(state.playerBoard, action.isRow, action.index);
+
+      const logEntry: ActionLogEntry = {
+        action,
+        result: count,
+        byPlayer: false,
+        turnNumber: state.turnNumber,
+      };
+
       newState.opponentRevealed = {
         ...state.opponentRevealed,
         scans: [...state.opponentRevealed.scans, {
@@ -110,6 +132,8 @@ export function useGame(): UseGameReturn {
       };
       newState.lastAction = action;
       newState.lastResult = count;
+      newState.lastActionByPlayer = false;
+      newState.actionLog = [...state.actionLog, logEntry];
     }
 
     newState.isPlayerTurn = true;
@@ -125,6 +149,14 @@ export function useGame(): UseGameReturn {
     const { result, newBoard } = resolveStrike(opponentBoard, target);
     aiOpponent.updateBoard(newBoard);
 
+    const action = { type: ActionType.Strike, target } as const;
+    const logEntry: ActionLogEntry = {
+      action,
+      result,
+      byPlayer: true,
+      turnNumber: gameState.turnNumber,
+    };
+
     let newState: GameState = {
       ...gameState,
       opponentBoard: newBoard,
@@ -132,8 +164,10 @@ export function useGame(): UseGameReturn {
         ...gameState.playerRevealed,
         strikes: new Map(gameState.playerRevealed.strikes).set(target, result),
       },
-      lastAction: { type: ActionType.Strike, target },
+      lastAction: action,
       lastResult: result,
+      lastActionByPlayer: true,
+      actionLog: [...gameState.actionLog, logEntry],
     };
 
     if (result === StrikeResult.HitAssassin) {
@@ -149,13 +183,17 @@ export function useGame(): UseGameReturn {
 
     newState.isPlayerTurn = false;
     newState.turnNumber++;
+    newState.aiThinking = true;
+
+    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
 
     setTimeout(() => {
       setGameState(prev => {
         if (!prev || prev.status !== GameStatus.Playing) return prev;
-        return processAITurn(prev, aiOpponent);
+        const result = processAITurn(prev, aiOpponent);
+        return { ...result, aiThinking: false };
       });
-    }, 800);
+    }, thinkingTime);
 
     setGameState(newState);
   }, [gameState, aiOpponent, processAITurn]);
@@ -167,24 +205,38 @@ export function useGame(): UseGameReturn {
     const opponentBoard = aiOpponent.getBoard();
     const count = countUnitsInLine(opponentBoard, isRow, index);
 
+    const action = { type: ActionType.Scan, isRow, index } as const;
+    const logEntry: ActionLogEntry = {
+      action,
+      result: count,
+      byPlayer: true,
+      turnNumber: gameState.turnNumber,
+    };
+
     let newState: GameState = {
       ...gameState,
       playerRevealed: {
         ...gameState.playerRevealed,
         scans: [...gameState.playerRevealed.scans, { isRow, index, count }],
       },
-      lastAction: { type: ActionType.Scan, isRow, index },
+      lastAction: action,
       lastResult: count,
+      lastActionByPlayer: true,
       isPlayerTurn: false,
       turnNumber: gameState.turnNumber + 1,
+      actionLog: [...gameState.actionLog, logEntry],
+      aiThinking: true,
     };
+
+    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
 
     setTimeout(() => {
       setGameState(prev => {
         if (!prev || prev.status !== GameStatus.Playing) return prev;
-        return processAITurn(prev, aiOpponent);
+        const result = processAITurn(prev, aiOpponent);
+        return { ...result, aiThinking: false };
       });
-    }, 800);
+    }, thinkingTime);
 
     setGameState(newState);
   }, [gameState, aiOpponent, processAITurn]);
@@ -197,22 +249,36 @@ export function useGame(): UseGameReturn {
     const newBoard = relocateUnit(gameState.playerBoard, unitIndex, newPosition);
     if (!newBoard) return;
 
+    const action = { type: ActionType.Relocate, unitIndex, newPosition } as const;
+    const logEntry: ActionLogEntry = {
+      action,
+      result: null,
+      byPlayer: true,
+      turnNumber: gameState.turnNumber,
+    };
+
     let newState: GameState = {
       ...gameState,
       playerBoard: newBoard,
       playerRelocatesRemaining: gameState.playerRelocatesRemaining - 1,
-      lastAction: { type: ActionType.Relocate, unitIndex, newPosition },
+      lastAction: action,
       lastResult: null,
+      lastActionByPlayer: true,
       isPlayerTurn: false,
       turnNumber: gameState.turnNumber + 1,
+      actionLog: [...gameState.actionLog, logEntry],
+      aiThinking: true,
     };
+
+    const thinkingTime = 1000 + Math.random() * 2000; // 1-3 seconds
 
     setTimeout(() => {
       setGameState(prev => {
         if (!prev || !aiOpponent || prev.status !== GameStatus.Playing) return prev;
-        return processAITurn(prev, aiOpponent);
+        const result = processAITurn(prev, aiOpponent);
+        return { ...result, aiThinking: false };
       });
-    }, 800);
+    }, thinkingTime);
 
     setGameState(newState);
   }, [gameState, aiOpponent, processAITurn]);

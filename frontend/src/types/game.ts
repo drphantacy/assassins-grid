@@ -59,6 +59,22 @@ export interface RelocateAction {
 
 export type GameAction = StrikeAction | ScanAction | RelocateAction;
 
+export interface ActionLogEntry {
+  action: GameAction;
+  result: StrikeResult | number | null;
+  byPlayer: boolean;
+  turnNumber: number;
+}
+
+export interface ChainEvent {
+  type: 'game_created' | 'board_committed' | 'strike' | 'scan' | 'relocate';
+  txId: string;
+  gameId?: string;
+  commitment?: string;
+  timestamp: number;
+  description: string;
+}
+
 export interface RevealedInfo {
   strikes: Map<number, StrikeResult>;
   scans: ScanResult[];
@@ -76,6 +92,11 @@ export interface GameState {
   turnNumber: number;
   lastAction: GameAction | null;
   lastResult: StrikeResult | number | null;
+  lastActionByPlayer: boolean;
+  actionLog: ActionLogEntry[];
+  aiThinking: boolean;
+  gameId?: string;
+  chainEvents: ChainEvent[];
 }
 
 export const GRID_SIZE = 5;
