@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@provablehq/sdk": "^0.9.15",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
