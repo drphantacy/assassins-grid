@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActionType, GameStatus, BoardState } from '../types/game';
 import { useGame } from '../hooks/useGame';
+import { useWallet } from '../hooks/useWallet';
 import { AIDifficulty } from '../ai/opponent';
 import GameBoard from './GameBoard';
 import GameControls from './GameControls';
@@ -17,6 +18,8 @@ const Game: React.FC = () => {
     performRelocate,
     resetGame,
   } = useGame();
+
+  const { connected, address, connecting, error, connect, disconnect } = useWallet();
 
   const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
@@ -217,6 +220,11 @@ const Game: React.FC = () => {
     </a>
   );
 
+  const formatAddress = (addr: string) => {
+    if (addr.length <= 12) return addr;
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
   if (!gameState) {
     return (
       <div className="game-container menu-screen">
@@ -224,6 +232,25 @@ const Game: React.FC = () => {
           <div className="menu-top">
             <h1 className="menu-title">Assassins Grid</h1>
             <p className="menu-subtitle">A ZK Hidden Information Strategy Game</p>
+            <div className="wallet-section">
+              {connected && address ? (
+                <div className="wallet-connected">
+                  <span className="wallet-address">{formatAddress(address)}</span>
+                  <button className="wallet-btn disconnect" onClick={disconnect}>
+                    Disconnect
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="wallet-btn connect"
+                  onClick={connect}
+                  disabled={connecting}
+                >
+                  {connecting ? 'Connecting...' : 'Connect Wallet'}
+                </button>
+              )}
+              {error && <p className="wallet-error">{error}</p>}
+            </div>
           </div>
           <div className={`menu-bottom ${isTransitioning ? 'expanding' : ''}`}>
             <div className="difficulty-select">
