@@ -97,7 +97,7 @@ const Game: React.FC = () => {
 
   const [txError, setTxError] = useState<string | null>(null);
 
-  const TEST_MODE = true; // Set to false to enable on-chain transactions
+  const TEST_MODE = import.meta.env.VITE_TEST_MODE === 'true';
 
   const handleConfirmPlacement = async () => {
     if (!setupBoard) return;
