@@ -1,0 +1,152 @@
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  border: 2px solid #333;
+  min-width: 300px;
+}
+
+.turn-indicator {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--lime);
+}
+
+.turn-indicator.waiting {
+  color: var(--stone);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid var(--lime);
+  border-radius: 8px;
+  background: rgba(196, 255, 194, 0.05);
+  color: var(--lime);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: rgba(196, 255, 194, 0.15);
+  box-shadow: 0 0 16px rgba(196, 255, 194, 0.2);
+}
+
+.action-btn.active {
+  background: rgba(196, 255, 194, 0.2);
+  box-shadow: 0 0 20px rgba(196, 255, 194, 0.3);
+}
+
+.action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #444;
+  color: #666;
+  background: transparent;
+}
+
+.action-btn.scan-btn-action {
+  border-color: var(--lemon);
+  color: var(--lemon);
+  background: rgba(238, 255, 168, 0.05);
+}
+
+.action-btn.scan-btn-action:hover:not(:disabled) {
+  background: rgba(238, 255, 168, 0.15);
+  box-shadow: 0 0 16px rgba(238, 255, 168, 0.2);
+}
+
+.action-btn.scan-btn-action.active {
+  background: rgba(238, 255, 168, 0.2);
+  box-shadow: 0 0 20px rgba(238, 255, 168, 0.3);
+}
+
+.action-btn.relocate-btn {
+  border-color: var(--pomelo);
+  color: var(--pomelo);
+  background: rgba(255, 224, 146, 0.05);
+}
+
+.action-btn.relocate-btn:hover:not(:disabled) {
+  background: rgba(255, 224, 146, 0.15);
+  box-shadow: 0 0 16px rgba(255, 224, 146, 0.2);
+}
+
+.action-btn.relocate-btn.active {
+  background: rgba(255, 224, 146, 0.2);
+  box-shadow: 0 0 20px rgba(255, 224, 146, 0.3);
+}
+
+.action-hint {
+  font-size: 14px;
+  color: var(--stone);
+  text-align: center;
+}
+
+.scan-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scan-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scan-section span {
+  font-size: 14px;
+  color: var(--stone);
+  min-width: 70px;
+}
+
+.scan-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid var(--lemon);
+  border-radius: 6px;
+  background: rgba(238, 255, 168, 0.05);
+  color: var(--lemon);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.scan-btn:hover {
+  background: rgba(238, 255, 168, 0.15);
+  box-shadow: 0 0 12px rgba(238, 255, 168, 0.2);
+}
+
+.game-result {
+  font-size: 28px;
+  font-weight: 700;
+  padding: 20px 40px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.game-result.win {
+  background: linear-gradient(135deg, rgba(196, 255, 194, 0.1) 0%, rgba(196, 255, 194, 0.2) 100%);
+  color: var(--lime);
+  border: 2px solid var(--lime);
+  box-shadow: 0 0 24px rgba(196, 255, 194, 0.3);
+}
+
+.game-result.lose {
+  background: linear-gradient(135deg, rgba(255, 169, 120, 0.1) 0%, rgba(255, 169, 120, 0.2) 100%);
+  color: var(--tangerine);
+  border: 2px solid var(--tangerine);
+  box-shadow: 0 0 24px rgba(255, 169, 120, 0.3);
+}
