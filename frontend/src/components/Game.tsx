@@ -222,10 +222,7 @@ const Game: React.FC = () => {
       <div className="game-container menu-screen">
         <div className="menu">
           <div className="menu-top">
-            <div className="menu-title">
-              <img src="/images/aleo-a-dark.png" alt="" className="aleo-a" />
-              <span>ssassins Grid</span>
-            </div>
+            <h1 className="menu-title">Assassins Grid</h1>
             <p className="menu-subtitle">A ZK Hidden Information Strategy Game</p>
           </div>
           <div className={`menu-bottom ${isTransitioning ? 'expanding' : ''}`}>
@@ -295,10 +292,7 @@ const Game: React.FC = () => {
   return (
     <div className="game-container">
       <div className="game-header">
-        <div className="game-header-title">
-          <img src="/images/aleo-a-dark.png" alt="" className="aleo-a" />
-          <span>ssassins Grid</span>
-        </div>
+        <h1 className="game-header-title">Assassins Grid</h1>
         <span className="turn-count">Turn {gameState.turnNumber}</span>
         {isGameOver && (
           <button className="reset-btn" onClick={resetGame}>

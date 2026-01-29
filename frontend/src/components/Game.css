@@ -33,23 +33,10 @@
 }
 
 .menu-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-bottom: 16px;
-}
-
-.menu-title .aleo-a {
-  height: 100px;
-  margin-right: -12px;
-  margin-top: -6px;
-}
-
-.menu-title span {
   font-size: 48px;
   font-weight: 400;
   color: #121212;
+  margin-bottom: 16px;
 }
 
 .menu-subtitle {
@@ -261,19 +248,6 @@
 }
 
 .game-header-title {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.game-header-title .aleo-a {
-  height: 44px;
-  margin-right: -4px;
-  margin-top: -2px;
-  filter: invert(1);
-}
-
-.game-header-title span {
   font-size: 28px;
   color: var(--ivory);
 }
