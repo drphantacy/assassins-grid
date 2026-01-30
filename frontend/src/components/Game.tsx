@@ -380,9 +380,11 @@ const Game: React.FC = () => {
           <div className="menu-board-shadow" />
         </div>
 
-        {/* Header */}
         <div className="menu-header">
-          <h1 className="menu-title">Assassins Grid</h1>
+          <div className="menu-title-row">
+            <img src="/logo.png" alt="" className="menu-logo" />
+            <h1 className="menu-title">ssassins Grid</h1>
+          </div>
           <p className="menu-subtitle">A ZK Hidden Information Strategy Game</p>
         </div>
 
@@ -632,9 +634,10 @@ const Game: React.FC = () => {
   return (
     <div className="game-container">
       <div className="game-header">
-        <div className="header-left"></div>
+        <div className="header-left">
+          <img src="/logo.png" alt="Assassins Grid" className="header-logo" />
+        </div>
         <div className="header-center">
-          <h1 className="game-header-title">Assassins Grid</h1>
           <GameControls
             status={gameState.status}
             isPlayerTurn={gameState.isPlayerTurn}
