@@ -483,6 +483,7 @@ const Game: React.FC = () => {
               onCellDrop={(pos, fromPos) => handlePlaceUnit(pos, fromPos)}
               disabled={false}
               allowRelocate={true}
+              hideStatus={true}
             />
           </div>
         </div>
@@ -563,6 +564,7 @@ const Game: React.FC = () => {
               onCellDrop={(pos, fromPos) => handlePlaceUnit(pos, fromPos)}
               disabled={false}
               allowRelocate={true}
+              hideStatus={true}
             />
           </div>
         </div>
@@ -622,6 +624,7 @@ const Game: React.FC = () => {
               onCellDrop={(pos, fromPos) => handlePlaceUnit(pos, fromPos)}
               disabled={false}
               allowRelocate={true}
+              hideStatus={true}
             />
           </div>
         </div>

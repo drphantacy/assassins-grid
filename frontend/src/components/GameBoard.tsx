@@ -23,6 +23,7 @@ interface GameBoardProps {
   disabled?: boolean;
   allowRelocate?: boolean;
   popoverCell?: number | null;
+  hideStatus?: boolean;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -37,6 +38,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   disabled = false,
   allowRelocate = false,
   popoverCell,
+  hideStatus = false,
 }) => {
   const [dragOverCell, setDragOverCell] = React.useState<number | null>(null);
   const dragImageRef = React.useRef<HTMLDivElement | null>(null);
@@ -219,17 +221,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         ))}
       </div>
-      <div className="unit-status">
-        {[0, 1, 2, 3, 4].map((idx) => (
-          <div
-            key={idx}
-            className={`unit-status-item ${killedUnits[idx] ? 'killed' : ''}`}
-            title={UNIT_NAMES[idx]}
-          >
-            <span className="unit-status-emoji">{UNIT_EMOJIS[idx]}</span>
-          </div>
-        ))}
-      </div>
+      {!hideStatus && (
+        <div className="unit-status">
+          {[0, 1, 2, 3, 4].map((idx) => (
+            <div
+              key={idx}
+              className={`unit-status-item ${killedUnits[idx] ? 'killed' : ''}`}
+              title={UNIT_NAMES[idx]}
+            >
+              <span className="unit-status-emoji">{UNIT_EMOJIS[idx]}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
     </div>
   );
