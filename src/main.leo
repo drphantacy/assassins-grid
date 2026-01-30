@@ -254,11 +254,18 @@ program assassins_grid.aleo {
     // TRANSITIONS
     // ============================================
 
-    // Constructor - required for deployment
     @custom
     async constructor() {
-        // Initialize a placeholder to satisfy non-empty requirement
-        Mapping::set(scan_counts, 0field, 0u32);
+        let admin: address = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc;
+        assert(self.program_owner == admin);
+
+        if self.edition > 0u16 {
+            assert(block.height >= 1000u32);
+        }
+
+        if self.edition == 0u16 {
+            Mapping::set(scan_counts, 0field, 0u32);
+        }
     }
 
     // Phase 1: Game Creation
