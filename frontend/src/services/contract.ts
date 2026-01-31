@@ -48,10 +48,8 @@ export function buildCreateGameTransaction(
   address: string,
   gameId: string,
   board: BoardState,
-  opponent: string,
-  gameMode: 'solo' | 'versus' = 'solo'
+  opponent: string
 ): AleoTransaction {
-  const gameModeValue = gameMode === 'solo' ? '1u8' : '0u8';
   return {
     address,
     chainId: 'testnetbeta',
@@ -62,7 +60,27 @@ export function buildCreateGameTransaction(
         `${gameId}field`,
         formatBoardState(board),
         opponent,
-        gameModeValue,
+      ],
+    }],
+    fee: 50_000,
+    feePrivate: false,
+  };
+}
+
+export function buildCreateSoloGameTransaction(
+  address: string,
+  gameId: string,
+  board: BoardState
+): AleoTransaction {
+  return {
+    address,
+    chainId: 'testnetbeta',
+    transitions: [{
+      program: PROGRAM_ID,
+      functionName: 'create_solo_game',
+      inputs: [
+        `${gameId}field`,
+        formatBoardState(board),
       ],
     }],
     fee: 50_000,

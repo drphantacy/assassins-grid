@@ -4,6 +4,7 @@ import {
   BoardState,
   AleoTransaction,
   buildCreateGameTransaction,
+  buildCreateSoloGameTransaction,
   buildJoinGameTransaction,
   buildStrikeTransaction,
   buildResolveStrikeTransaction,
@@ -81,8 +82,7 @@ export function useContract() {
 
   const createGame = useCallback(async (
     board: Omit<BoardState, 'salt'>,
-    opponent: string,
-    gameMode: 'solo' | 'versus' = 'solo'
+    opponent: string
   ) => {
     if (!publicKey) {
       throw new Error('Wallet not connected');
@@ -92,7 +92,23 @@ export function useContract() {
     const salt = generateSalt();
     const fullBoard: BoardState = { ...board, salt };
 
-    const tx = buildCreateGameTransaction(publicKey, gameId, fullBoard, opponent, gameMode);
+    const tx = buildCreateGameTransaction(publicKey, gameId, fullBoard, opponent);
+    const txId = await executeTransaction(tx);
+    return { gameId, txId, board: fullBoard };
+  }, [publicKey, executeTransaction]);
+
+  const createSoloGame = useCallback(async (
+    board: Omit<BoardState, 'salt'>
+  ) => {
+    if (!publicKey) {
+      throw new Error('Wallet not connected');
+    }
+
+    const gameId = generateGameId();
+    const salt = generateSalt();
+    const fullBoard: BoardState = { ...board, salt };
+
+    const tx = buildCreateSoloGameTransaction(publicKey, gameId, fullBoard);
     const txId = await executeTransaction(tx);
     return { gameId, txId, board: fullBoard };
   }, [publicKey, executeTransaction]);
@@ -231,6 +247,7 @@ export function useContract() {
     balance,
     refreshBalance,
     createGame,
+    createSoloGame,
     joinGame,
     strike,
     resolveStrike,

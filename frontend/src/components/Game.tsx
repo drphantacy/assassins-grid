@@ -29,7 +29,7 @@ const Game: React.FC = () => {
     resetGame,
   } = useGame();
 
-  const { connected, createGame, relocate: contractRelocate, fetchGameBoardRecord, balance } = useContract();
+  const { connected, createSoloGame, createGame, relocate: contractRelocate, fetchGameBoardRecord, balance } = useContract();
 
   const [popoverCell, setPopoverCell] = useState<number | null>(null);
   const [playerPopoverCell, setPlayerPopoverCell] = useState<number | null>(null);
@@ -137,16 +137,13 @@ const Game: React.FC = () => {
     }
 
     try {
-      const result = await createGame(
-        {
-          assassinPos: setupBoard.assassinPos,
-          guard1Pos: setupBoard.guard1Pos,
-          guard2Pos: setupBoard.guard2Pos,
-          decoy1Pos: setupBoard.decoy1Pos,
-          decoy2Pos: setupBoard.decoy2Pos,
-        },
-        AI_OPPONENT_ADDRESS
-      );
+      const result = await createSoloGame({
+        assassinPos: setupBoard.assassinPos,
+        guard1Pos: setupBoard.guard1Pos,
+        guard2Pos: setupBoard.guard2Pos,
+        decoy1Pos: setupBoard.decoy1Pos,
+        decoy2Pos: setupBoard.decoy2Pos,
+      });
 
       console.log('Game created:', result);
 
