@@ -303,6 +303,14 @@
   transform: translateY(-1px);
 }
 
+.menu-wallet .wallet-adapter-dropdown {
+  z-index: 1000 !important;
+}
+
+.menu-wallet .wallet-adapter-dropdown-list {
+  z-index: 1000 !important;
+}
+
 .wallet-card {
   display: flex;
   flex-direction: column;
@@ -314,6 +322,7 @@
   border-radius: 16px;
   backdrop-filter: blur(8px);
   margin-bottom: 24px;
+  z-index: 1000;
 }
 
 .wallet-card .menu-wallet {
