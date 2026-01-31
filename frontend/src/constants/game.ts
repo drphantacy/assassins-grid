@@ -37,7 +37,8 @@ export const INITIAL_EMPTY_BOARD = {
 
 // Explorer
 export const EXPLORER_API_BASE = 'https://api.explorer.provable.com/v1/testnet';
-export const PROGRAM_EXPLORER_URL = 'https://testnet.explorer.provable.com/program/assassins_grid.aleo';
+const PROGRAM_ID = import.meta.env.VITE_PROGRAM_ID || 'assassins_grid_v2.aleo';
+export const PROGRAM_EXPLORER_URL = `https://testnet.explorer.provable.com/program/${PROGRAM_ID}`;
 
 // Credits
 export const MICROCREDITS_PER_CREDIT = 1_000_000;

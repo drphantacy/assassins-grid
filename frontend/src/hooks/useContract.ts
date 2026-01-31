@@ -81,7 +81,8 @@ export function useContract() {
 
   const createGame = useCallback(async (
     board: Omit<BoardState, 'salt'>,
-    opponent: string
+    opponent: string,
+    gameMode: 'solo' | 'versus' = 'solo'
   ) => {
     if (!publicKey) {
       throw new Error('Wallet not connected');
@@ -91,7 +92,7 @@ export function useContract() {
     const salt = generateSalt();
     const fullBoard: BoardState = { ...board, salt };
 
-    const tx = buildCreateGameTransaction(publicKey, gameId, fullBoard, opponent);
+    const tx = buildCreateGameTransaction(publicKey, gameId, fullBoard, opponent, gameMode);
     const txId = await executeTransaction(tx);
     return { gameId, txId, board: fullBoard };
   }, [publicKey, executeTransaction]);
@@ -152,15 +153,51 @@ export function useContract() {
     return { txId };
   }, [publicKey, executeTransaction]);
 
-  const relocate = useCallback(async (unitIndex: number, newPosition: number) => {
+  const relocate = useCallback(async (gameBoardRecord: any, unitIndex: number, newPosition: number) => {
     if (!publicKey) {
       throw new Error('Wallet not connected');
     }
 
-    const tx = buildRelocateTransaction(publicKey, unitIndex, newPosition);
+    const tx = buildRelocateTransaction(publicKey, gameBoardRecord, unitIndex, newPosition);
     const txId = await executeTransaction(tx);
     return { txId };
   }, [publicKey, executeTransaction]);
+
+  const fetchGameBoardRecord = useCallback(async (gameId: string): Promise<any | null> => {
+    if (!requestRecords) {
+      throw new Error('Wallet not connected');
+    }
+
+    const records = await requestRecords(PROGRAM_ID);
+
+    if (!records || !Array.isArray(records)) {
+      return null;
+    }
+
+    // Find unspent GameBoard records
+    const gameBoards = records.filter((r: any) =>
+      r.recordName === 'GameBoard' && r.spent === false
+    );
+
+    for (const record of gameBoards) {
+      // Check plaintext for game_id
+      if (record.plaintext?.includes(gameId)) {
+        return record.plaintext;
+      }
+
+      // Check data object for game_id
+      if (record.data?.game_id?.includes(gameId)) {
+        return record.plaintext || record.ciphertext;
+      }
+    }
+
+    // If no match found but we have records, use the most recent one
+    if (gameBoards.length > 0) {
+      return gameBoards[0];
+    }
+
+    return null;
+  }, [requestRecords]);
 
   const forfeit = useCallback(async () => {
     if (!publicKey) {
@@ -202,5 +239,6 @@ export function useContract() {
     relocate,
     forfeit,
     getGameBoards,
+    fetchGameBoardRecord,
   };
 }

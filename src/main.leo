@@ -21,6 +21,10 @@ program assassins_grid_v2.aleo {
     // Game status
     const STATUS_WAITING: u8 = 0u8;      // Waiting for player 2
     const STATUS_ACTIVE: u8 = 1u8;       // Game in progress
+
+    // Game modes
+    const MODE_VERSUS: u8 = 0u8;         // Two player mode
+    const MODE_SOLO: u8 = 1u8;           // Single player vs AI
     const STATUS_FINISHED: u8 = 2u8;     // Game completed
 
     // Action types for pending actions
@@ -264,13 +268,18 @@ program assassins_grid_v2.aleo {
 
     // Phase 1: Game Creation
     // Player 1 creates a new game with their board placement
+    // game_mode: 0 = versus (waiting for opponent), 1 = solo (active immediately)
     async transition create_game(
         public game_id: field,
         private board: BoardState,
         public opponent: address,
+        public game_mode: u8,
     ) -> (GameBoard, Future) {
         // Validate board placement
         assert(validate_placement(board));
+
+        // Validate game mode
+        assert(game_mode == MODE_VERSUS || game_mode == MODE_SOLO);
 
         // Compute commitment to board state
         let commitment: field = compute_commitment(board);
@@ -290,7 +299,8 @@ program assassins_grid_v2.aleo {
             game_id,
             self.signer,
             opponent,
-            commitment
+            commitment,
+            game_mode
         );
 
         return (game_board, f);
@@ -301,15 +311,19 @@ program assassins_grid_v2.aleo {
         player1: address,
         player2: address,
         commitment: field,
+        game_mode: u8,
     ) {
         // Ensure game doesn't already exist
         assert(!Mapping::contains(games, game_id));
+
+        // Set status based on game mode
+        let initial_status: u8 = (game_mode == MODE_SOLO) ? STATUS_ACTIVE : STATUS_WAITING;
 
         // Create game info
         let game_info: GameInfo = GameInfo {
             player1: player1,
             player2: player2,
-            status: STATUS_WAITING,
+            status: initial_status,
             winner: player1,
             created_at: 0u32,
         };
@@ -327,6 +341,19 @@ program assassins_grid_v2.aleo {
 
         // Initialize scan count
         Mapping::set(scan_counts, game_id, 0u32);
+
+        // For solo mode, initialize turn state immediately (player goes first)
+        if (game_mode == MODE_SOLO) {
+            let turn_info: TurnInfo = TurnInfo {
+                current_player: player1,
+                turn_number: 1u32,
+                pending_action: ACTION_NONE,
+                pending_target: 0u8,
+                pending_is_row: false,
+                action_timestamp: 0u32,
+            };
+            Mapping::set(turn_state, game_id, turn_info);
+        }
     }
 
     // Phase 1: Join Game

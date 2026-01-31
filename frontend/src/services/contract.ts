@@ -1,4 +1,4 @@
-const PROGRAM_ID = 'assassins_grid_v2.aleo';
+const PROGRAM_ID = import.meta.env.VITE_PROGRAM_ID || 'assassins_grid_v2.aleo';
 
 export interface BoardState {
   assassinPos: number;
@@ -9,10 +9,27 @@ export interface BoardState {
   salt: string;
 }
 
+export interface GameBoardRecord {
+  owner: string;
+  game_id: string;
+  board: {
+    assassin_pos: string;
+    guard1_pos: string;
+    guard2_pos: string;
+    decoy1_pos: string;
+    decoy2_pos: string;
+    salt: string;
+  };
+  opponent: string;
+  relocates_remaining: string;
+  is_player_one: string;
+  _nonce: string;
+}
+
 export interface AleoTransition {
   program: string;
   functionName: string;
-  inputs: string[];
+  inputs: (string | object)[];
 }
 
 export interface AleoTransaction {
@@ -31,8 +48,10 @@ export function buildCreateGameTransaction(
   address: string,
   gameId: string,
   board: BoardState,
-  opponent: string
+  opponent: string,
+  gameMode: 'solo' | 'versus' = 'solo'
 ): AleoTransaction {
+  const gameModeValue = gameMode === 'solo' ? '1u8' : '0u8';
   return {
     address,
     chainId: 'testnetbeta',
@@ -43,9 +62,10 @@ export function buildCreateGameTransaction(
         `${gameId}field`,
         formatBoardState(board),
         opponent,
+        gameModeValue,
       ],
     }],
-    fee: 2_500,
+    fee: 50_000,
     feePrivate: false,
   };
 }
@@ -149,6 +169,7 @@ export function buildRespondScanTransaction(
 
 export function buildRelocateTransaction(
   address: string,
+  gameBoardRecord: any,
   unitIndex: number,
   newPosition: number
 ): AleoTransaction {
@@ -159,6 +180,7 @@ export function buildRelocateTransaction(
       program: PROGRAM_ID,
       functionName: 'relocate',
       inputs: [
+        gameBoardRecord,
         `${unitIndex}u8`,
         `${newPosition}u8`,
       ],

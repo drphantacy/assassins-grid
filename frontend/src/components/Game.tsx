@@ -29,7 +29,7 @@ const Game: React.FC = () => {
     resetGame,
   } = useGame();
 
-  const { connected, createGame, balance } = useContract();
+  const { connected, createGame, relocate: contractRelocate, fetchGameBoardRecord, balance } = useContract();
 
   const [popoverCell, setPopoverCell] = useState<number | null>(null);
   const [playerPopoverCell, setPlayerPopoverCell] = useState<number | null>(null);
@@ -45,9 +45,13 @@ const Game: React.FC = () => {
   const [isStartingGame, setIsStartingGame] = useState(false);
   const [createdGameId, setCreatedGameId] = useState<string | null>(null);
   const [txId, setTxId] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => {
+    const saved = localStorage.getItem('assassinsGrid_musicMuted');
+    return saved === 'true';
+  });
   const [chainEvents, setChainEvents] = useState<ChainEvent[]>([]);
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
+  const [gameBoardRecord, setGameBoardRecord] = useState<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -67,6 +71,7 @@ const Game: React.FC = () => {
     audioRef.current = new Audio('/audio/background-music.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = AUDIO_VOLUME;
+    audioRef.current.muted = isMuted;
 
     return () => {
       if (audioRef.current) {
@@ -84,8 +89,10 @@ const Game: React.FC = () => {
 
   const toggleMute = () => {
     if (audioRef.current) {
-      audioRef.current.muted = !audioRef.current.muted;
-      setIsMuted(!isMuted);
+      const newMuted = !audioRef.current.muted;
+      audioRef.current.muted = newMuted;
+      setIsMuted(newMuted);
+      localStorage.setItem('assassinsGrid_musicMuted', String(newMuted));
     }
   };
 
@@ -298,7 +305,7 @@ const Game: React.FC = () => {
     return positions.indexOf(pos);
   };
 
-  const handlePlayerCellClick = (pos: number) => {
+  const handlePlayerCellClick = async (pos: number) => {
     if (!gameState || !gameState.isPlayerTurn) return;
 
     // If in relocate mode, complete the relocate
@@ -308,6 +315,31 @@ const Game: React.FC = () => {
         // Check destination is empty and not struck
         const isStruck = gameState.opponentRevealed.strikes.has(pos);
         if (getUnitAtPosition(pos) === -1 && !isStruck) {
+          // Call contract if not in test mode
+          if (!TEST_MODE && connected && currentGameId) {
+            try {
+              // Fetch record if we don't have it
+              let record = gameBoardRecord;
+              if (!record) {
+                record = await fetchGameBoardRecord(currentGameId);
+                if (record) {
+                  setGameBoardRecord(record);
+                }
+              }
+
+              if (record) {
+                const result = await contractRelocate(record, unitIndex, pos);
+                setChainEvents(prev => [...prev, {
+                  type: 'relocate',
+                  txId: result.txId,
+                  timestamp: Date.now(),
+                  description: `Relocated unit from ${relocateFromCell} to ${pos}`,
+                }]);
+              }
+            } catch (err) {
+              console.error('Failed to relocate on chain:', err);
+            }
+          }
           performRelocate(unitIndex, pos);
         }
       }
@@ -596,18 +628,20 @@ const Game: React.FC = () => {
                   <span className="unit-label">{getUnitName(i)}</span>
                 </div>
               ))}
-              <button
-                className={`start-btn tray-start-btn ${isStartingGame ? 'loading' : ''}`}
-                onClick={handleConfirmPlacement}
-                disabled={!isAllPlaced() || isStartingGame}
-              >
-                {isStartingGame ? 'Starting...' : 'Start Game'}
-              </button>
-              {txError && (
-                <div className="tx-error">
-                  Transaction failed. Please try again.
-                </div>
-              )}
+              <div className="tray-actions">
+                <button
+                  className={`start-btn tray-start-btn ${isStartingGame ? 'loading' : ''}`}
+                  onClick={handleConfirmPlacement}
+                  disabled={!isAllPlaced() || isStartingGame}
+                >
+                  {isStartingGame ? <span className="btn-spinner" /> : 'Start Game'}
+                </button>
+                {txError && (
+                  <div className="tx-error">
+                    Transaction failed. Please try again.
+                  </div>
+                )}
+              </div>
             </div>
             <GameBoard
               board={setupBoard}
@@ -656,18 +690,20 @@ const Game: React.FC = () => {
                   <span className="unit-label">{getUnitName(i)}</span>
                 </div>
               ))}
-              <button
-                className={`start-btn tray-start-btn ${isStartingGame ? 'loading' : ''}`}
-                onClick={handleConfirmPlacement}
-                disabled={!isAllPlaced() || isStartingGame}
-              >
-                {isStartingGame ? 'Starting...' : 'Start Game'}
-              </button>
-              {txError && (
-                <div className="tx-error">
-                  Transaction failed. Please try again.
-                </div>
-              )}
+              <div className="tray-actions">
+                <button
+                  className={`start-btn tray-start-btn ${isStartingGame ? 'loading' : ''}`}
+                  onClick={handleConfirmPlacement}
+                  disabled={!isAllPlaced() || isStartingGame}
+                >
+                  {isStartingGame ? <span className="btn-spinner" /> : 'Start Game'}
+                </button>
+                {txError && (
+                  <div className="tx-error">
+                    Transaction failed. Please try again.
+                  </div>
+                )}
+              </div>
             </div>
             <GameBoard
               board={setupBoard}
