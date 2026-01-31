@@ -312,10 +312,8 @@ const Game: React.FC = () => {
         // Check destination is empty and not struck
         const isStruck = gameState.opponentRevealed.strikes.has(pos);
         if (getUnitAtPosition(pos) === -1 && !isStruck) {
-          // Call contract if not in test mode
           if (!TEST_MODE && connected && currentGameId) {
             try {
-              // Fetch record if we don't have it
               let record = gameBoardRecord;
               if (!record) {
                 record = await fetchGameBoardRecord(currentGameId);
@@ -332,12 +330,14 @@ const Game: React.FC = () => {
                   timestamp: Date.now(),
                   description: `Relocated unit from ${relocateFromCell} to ${pos}`,
                 }]);
+                performRelocate(unitIndex, pos);
               }
             } catch (err) {
               console.error('Failed to relocate on chain:', err);
             }
+          } else {
+            performRelocate(unitIndex, pos);
           }
-          performRelocate(unitIndex, pos);
         }
       }
       setRelocateFromCell(null);
