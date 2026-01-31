@@ -1,4 +1,4 @@
-const PROGRAM_ID = 'assassins_grid.aleo';
+const PROGRAM_ID = 'assassins_grid_v2.aleo';
 
 export interface BoardState {
   assassinPos: number;
@@ -45,7 +45,7 @@ export function buildCreateGameTransaction(
         opponent,
       ],
     }],
-    fee: 50_000,
+    fee: 2_500,
     feePrivate: false,
   };
 }

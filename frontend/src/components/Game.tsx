@@ -25,13 +25,17 @@ const Game: React.FC = () => {
     startGame,
     placeUnits,
     performStrike,
+    performRelocate,
     resetGame,
   } = useGame();
 
   const { connected, createGame, balance } = useContract();
 
   const [popoverCell, setPopoverCell] = useState<number | null>(null);
+  const [playerPopoverCell, setPlayerPopoverCell] = useState<number | null>(null);
+  const [relocateFromCell, setRelocateFromCell] = useState<number | null>(null);
   const [showLog, setShowLog] = useState(false);
+  const [lastSeenLogCount, setLastSeenLogCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [placingUnit, setPlacingUnit] = useState<number | null>(0);
   const [setupBoard, setSetupBoard] = useState<BoardState | null>(null);
@@ -268,6 +272,8 @@ const Game: React.FC = () => {
     if (!gameState || !gameState.isPlayerTurn) return;
     if (gameState.playerRevealed.strikes.has(pos)) return;
     setPopoverCell(popoverCell === pos ? null : pos);
+    setPlayerPopoverCell(null); // Close player popover
+    setRelocateFromCell(null); // Cancel relocate mode
   };
 
   const handleStrike = (pos: number) => {
@@ -280,7 +286,54 @@ const Game: React.FC = () => {
     setPopoverCell(null);
   };
 
-  const handlePlayerCellClick = (_pos: number) => {
+  const getUnitAtPosition = (pos: number): number => {
+    if (!gameState) return -1;
+    const positions = [
+      gameState.playerBoard.assassinPos,
+      gameState.playerBoard.guard1Pos,
+      gameState.playerBoard.guard2Pos,
+      gameState.playerBoard.decoy1Pos,
+      gameState.playerBoard.decoy2Pos,
+    ];
+    return positions.indexOf(pos);
+  };
+
+  const handlePlayerCellClick = (pos: number) => {
+    if (!gameState || !gameState.isPlayerTurn) return;
+
+    // If in relocate mode, complete the relocate
+    if (relocateFromCell !== null) {
+      const unitIndex = getUnitAtPosition(relocateFromCell);
+      if (unitIndex !== -1 && pos !== relocateFromCell) {
+        // Check destination is empty and not struck
+        const isStruck = gameState.opponentRevealed.strikes.has(pos);
+        if (getUnitAtPosition(pos) === -1 && !isStruck) {
+          performRelocate(unitIndex, pos);
+        }
+      }
+      setRelocateFromCell(null);
+      setPlayerPopoverCell(null);
+      return;
+    }
+
+    // If clicking on own unit, show popover
+    const unitIndex = getUnitAtPosition(pos);
+    if (unitIndex !== -1 && gameState.playerRelocatesRemaining > 0) {
+      setPlayerPopoverCell(playerPopoverCell === pos ? null : pos);
+      setPopoverCell(null); // Close opponent popover
+    }
+  };
+
+  const handleStartRelocate = () => {
+    if (playerPopoverCell !== null) {
+      setRelocateFromCell(playerPopoverCell);
+      setPlayerPopoverCell(null);
+    }
+  };
+
+  const closePlayerPopover = () => {
+    setPlayerPopoverCell(null);
+    setRelocateFromCell(null);
   };
 
   const renderBadge = () => (
@@ -649,9 +702,17 @@ const Game: React.FC = () => {
         <div className="header-right">
           <button
             className={`log-toggle ${showLog ? 'active' : ''}`}
-            onClick={() => setShowLog(!showLog)}
+            onClick={() => {
+              setShowLog(!showLog);
+              if (!showLog) {
+                setLastSeenLogCount(gameState.actionLog.length + chainEvents.length);
+              }
+            }}
             title="Game Log"
           >
+            {!showLog && (gameState.actionLog.length + chainEvents.length) > lastSeenLogCount && (
+              <span className="log-notification-dot" />
+            )}
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
@@ -717,12 +778,45 @@ const Game: React.FC = () => {
             />
           </div>
           <div className={`board-wrapper ${gameState.isPlayerTurn ? 'inactive' : 'active'} ${gameState.aiThinking ? 'thinking' : ''}`}>
+            {playerPopoverCell !== null && (
+              <div className="action-box player-action-box">
+                <div className="action-box-header">
+                  <span className="action-box-title">Your Unit</span>
+                  <button className="action-box-close" onClick={closePlayerPopover}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="action-box-buttons">
+                  <button className="action-box-btn relocate" onClick={handleStartRelocate}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="5 9 2 12 5 15" />
+                      <polyline points="9 5 12 2 15 5" />
+                      <polyline points="15 19 12 22 9 19" />
+                      <polyline points="19 9 22 12 19 15" />
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <line x1="12" y1="2" x2="12" y2="22" />
+                    </svg>
+                    Relocate ({gameState.playerRelocatesRemaining})
+                  </button>
+                </div>
+              </div>
+            )}
+            {relocateFromCell !== null && (
+              <div className="relocate-hint">
+                Click an empty cell to relocate
+              </div>
+            )}
             <GameBoard
               board={gameState.playerBoard}
               revealed={gameState.opponentRevealed}
               isOwn={true}
               onCellClick={handlePlayerCellClick}
-              disabled={true}
+              disabled={!gameState.isPlayerTurn}
+              popoverCell={playerPopoverCell}
+              highlightedCells={relocateFromCell !== null ? [relocateFromCell] : []}
             />
             <div className="ai-thinking-overlay">
               <div className="ai-thinking-content">

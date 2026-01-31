@@ -96,6 +96,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     if (isOwn && board) {
       const unit = getUnitAt(board, pos);
       const isStruck = revealed?.strikes.has(pos);
+      const strikeResult = revealed?.strikes.get(pos);
 
       if (unit !== UnitType.Empty) {
         cellContent = getUnitEmoji(unit);
@@ -112,7 +113,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
           cellClass += ' draggable';
         }
       } else if (isStruck) {
-        cellClass += ' result-miss';
+        // Unit was eliminated - show emoji based on strike result
+        if (strikeResult === StrikeResult.HitAssassin) {
+          cellContent = '🗡️';
+          cellClass += ' struck result-hitassassin';
+        } else if (strikeResult === StrikeResult.HitGuard) {
+          cellContent = '🛡️';
+          cellClass += ' struck result-hitguard';
+        } else if (strikeResult === StrikeResult.HitDecoy) {
+          cellContent = '👤';
+          cellClass += ' struck result-hitdecoy';
+        } else {
+          cellClass += ' result-miss';
+        }
       }
     } else if (revealed) {
       if (revealed.strikes.has(pos)) {
@@ -180,10 +193,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const getKilledUnits = (): boolean[] => {
     const killed = [false, false, false, false, false];
 
-    if (isOwn && board && revealed) {
+    if (isOwn && board) {
       const positions = [board.assassinPos, board.guard1Pos, board.guard2Pos, board.decoy1Pos, board.decoy2Pos];
       positions.forEach((pos, idx) => {
-        if (pos !== -1 && revealed.strikes.has(pos)) {
+        // Unit is killed if its position is -1 (ELIMINATED)
+        if (pos === -1) {
           killed[idx] = true;
         }
       });
@@ -212,7 +226,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const killedUnits = getKilledUnits();
 
   return (
-    <div className="game-board">
+    <div className={`game-board ${isOwn ? 'own-board' : ''}`}>
       <div className="board-title">{isOwn ? 'Your Board' : "Opponent's Board"}</div>
       <div className="board-grid">
         {Array.from({ length: GRID_SIZE }, (_, row) => (

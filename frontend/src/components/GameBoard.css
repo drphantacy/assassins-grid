@@ -288,6 +288,25 @@
   animation: pulse-assassin-hit 1.5s ease-in-out infinite;
 }
 
+/* Own board hits - red color for damage */
+.own-board .result-hitguard,
+.own-board .result-hitdecoy,
+.own-board .result-hitassassin {
+  background: linear-gradient(135deg, rgba(255, 80, 80, 0.25) 0%, rgba(255, 80, 80, 0.1) 100%);
+  box-shadow:
+    1px 1px 0 rgba(255, 80, 80, 0.15),
+    2px 2px 0 rgba(255, 80, 80, 0.1),
+    3px 3px 0 rgba(255, 80, 80, 0.05),
+    4px 4px 0 #040404,
+    5px 5px 0 #030303,
+    6px 6px 0 #020202,
+    7px 7px 0 #010101,
+    8px 8px 0 #000000,
+    8px 8px 20px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(255, 80, 80, 0.3);
+  animation: none;
+}
+
 .unit-status {
   display: flex;
   justify-content: center;

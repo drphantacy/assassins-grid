@@ -2,7 +2,7 @@
 // Two players secretly place 5 units (1 Assassin, 2 Guards, 2 Decoys) on a 5x5 grid
 // Players take turns striking, scanning, or relocating to find and eliminate the opponent's Assassin
 
-program assassins_grid.aleo {
+program assassins_grid_v2.aleo {
 
     // ============================================
     // CONSTANTS
@@ -251,22 +251,16 @@ program assassins_grid.aleo {
     }
 
     // ============================================
-    // TRANSITIONS
+    // CONSTRUCTOR (Upgradability)
     // ============================================
 
-    @custom
+    @admin(address = "aleo1km8j6vsjjjhnj7hz45lra5w8mqmkp5nc4umhftftdxayh3hspsqqzp5k2h")
     async constructor() {
-        let admin: address = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc;
-        assert(self.program_owner == admin);
-
-        if self.edition > 0u16 {
-            assert(block.height >= 1000u32);
-        }
-
-        if self.edition == 0u16 {
-            Mapping::set(scan_counts, 0field, 0u32);
-        }
     }
+
+    // ============================================
+    // TRANSITIONS
+    // ============================================
 
     // Phase 1: Game Creation
     // Player 1 creates a new game with their board placement

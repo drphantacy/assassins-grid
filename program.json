@@ -1,5 +1,5 @@
 {
-    "program": "assassins_grid.aleo",
+    "program": "assassins_grid_v2.aleo",
     "version": "0.1.0",
     "description": "A two-player ZK hidden information strategy game where players secretly place units on a 5x5 grid and take turns striking, scanning, or relocating to find and eliminate the opponent's Assassin.",
     "license": "MIT"

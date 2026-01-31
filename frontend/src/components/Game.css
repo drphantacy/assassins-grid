@@ -734,6 +734,32 @@
   background: rgba(196, 255, 194, 0.15);
 }
 
+.log-toggle {
+  position: relative;
+}
+
+.log-notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
 .game-header-title {
   font-size: 24px;
   color: var(--ivory);
@@ -832,7 +858,6 @@
 }
 
 .board-wrapper.inactive {
-  pointer-events: none;
 }
 
 .board-wrapper .game-board {
@@ -902,6 +927,17 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+.relocate-hint {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--lime);
+  white-space: nowrap;
+  opacity: 0.8;
 }
 
 .boards {
@@ -1005,6 +1041,21 @@
 
 .action-box-btn.strike:hover {
   background: rgba(196, 255, 194, 0.25);
+}
+
+.action-box-btn.relocate {
+  background: rgba(100, 180, 255, 0.1);
+  color: #64b4ff;
+}
+
+.action-box-btn.relocate:hover {
+  background: rgba(100, 180, 255, 0.25);
+}
+
+.player-action-box {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .action-box-btn:disabled {
