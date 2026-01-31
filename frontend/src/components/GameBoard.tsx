@@ -124,7 +124,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
           cellContent = '👤';
           cellClass += ' struck result-hitdecoy';
         } else {
-          cellClass += ' result-miss';
+          cellClass += ' struck result-miss';
         }
       }
     } else if (revealed) {
