@@ -22,11 +22,11 @@ const GameControls: React.FC<GameControlsProps> = ({
   return (
     <div className="game-controls">
       <div className={`turn-indicator ${!isPlayerTurn ? 'waiting' : ''}`}>
-        {isPlayerTurn ? "Your Turn" : "Opponent's Turn..."}
+        {isPlayerTurn ? "Your Turn" : "Opponent's Turn"}
       </div>
-      {isPlayerTurn && (
-        <div className="action-hint">Click a cell on opponent's board</div>
-      )}
+      <div className="action-hint">
+        {isPlayerTurn ? "Click a cell on opponent's board" : "Please wait..."}
+      </div>
     </div>
   );
 };
