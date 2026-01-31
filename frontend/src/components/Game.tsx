@@ -34,6 +34,7 @@ const Game: React.FC = () => {
   const [popoverCell, setPopoverCell] = useState<number | null>(null);
   const [playerPopoverCell, setPlayerPopoverCell] = useState<number | null>(null);
   const [relocateFromCell, setRelocateFromCell] = useState<number | null>(null);
+  const [isRelocating, setIsRelocating] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [lastSeenLogCount, setLastSeenLogCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -313,6 +314,7 @@ const Game: React.FC = () => {
         const isStruck = gameState.opponentRevealed.strikes.has(pos);
         if (getUnitAtPosition(pos) === -1 && !isStruck) {
           if (!TEST_MODE && connected && currentGameId) {
+            setIsRelocating(true);
             try {
               let record = gameBoardRecord;
               if (!record) {
@@ -334,6 +336,8 @@ const Game: React.FC = () => {
               }
             } catch (err) {
               console.error('Failed to relocate on chain:', err);
+            } finally {
+              setIsRelocating(false);
             }
           } else {
             performRelocate(unitIndex, pos);
@@ -810,7 +814,7 @@ const Game: React.FC = () => {
               popoverCell={popoverCell}
             />
           </div>
-          <div className={`board-wrapper ${gameState.isPlayerTurn ? 'inactive' : 'active'} ${gameState.aiThinking ? 'thinking' : ''}`}>
+          <div className={`board-wrapper ${gameState.isPlayerTurn ? 'inactive' : 'active'} ${gameState.aiThinking ? 'thinking' : ''} ${isRelocating ? 'relocating' : ''}`}>
             {playerPopoverCell !== null && (
               <div className="action-box player-action-box">
                 <div className="action-box-header">
@@ -859,6 +863,12 @@ const Game: React.FC = () => {
                   <span></span>
                   <span></span>
                 </div>
+              </div>
+            </div>
+            <div className="relocating-overlay">
+              <div className="relocating-content">
+                <span className="relocating-spinner" />
+                <div className="relocating-text">Relocating</div>
               </div>
             </div>
           </div>
